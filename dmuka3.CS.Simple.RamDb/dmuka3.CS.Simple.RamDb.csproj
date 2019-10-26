@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <Copyright>https://github.com/muhammet-kandemir-95</Copyright>
+    <PackageProjectUrl>https://github.com/muhammet-kandemir-95/dmuka3.CS.Simple.RamDb</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/muhammet-kandemir-95/dmuka3.CS.Simple.RamDb</RepositoryUrl>
+    <PackageTags>c#, core, simple, ramdb</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="dmuka3.CS.Simple.RSA" Version="1.0.1" />
+    <PackageReference Include="dmuka3.CS.Simple.Semaphore" Version="1.0.1" />
+    <PackageReference Include="dmuka3.CS.Simple.TCP" Version="1.0.2" />
+  </ItemGroup>
+
+</Project>
