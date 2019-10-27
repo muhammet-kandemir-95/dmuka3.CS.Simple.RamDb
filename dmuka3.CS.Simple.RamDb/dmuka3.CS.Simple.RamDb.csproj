@@ -8,6 +8,7 @@
     <PackageProjectUrl>https://github.com/muhammet-kandemir-95/dmuka3.CS.Simple.RamDb</PackageProjectUrl>
     <RepositoryUrl>https://github.com/muhammet-kandemir-95/dmuka3.CS.Simple.RamDb</RepositoryUrl>
     <PackageTags>c#, core, simple, ramdb</PackageTags>
+    <Version>1.0.1</Version>
   </PropertyGroup>
 
   <ItemGroup>

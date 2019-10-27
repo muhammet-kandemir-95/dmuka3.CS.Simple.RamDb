@@ -285,6 +285,8 @@ namespace dmuka3.CS.Simple.RamDb
                                         added = false;
                                         return data;
                                     });
+                                    if (!added && this.DbValuesExpire[key] < DateTime.UtcNow)
+                                        added = true;
                                     this.DbValuesExpire.AddOrUpdate(key, (o) => time, (o, x) => time);
 
                                     //      SERVER : ADDED / UPDATED
@@ -323,8 +325,8 @@ namespace dmuka3.CS.Simple.RamDb
                                         continue;
                                     }
 
-                                    string v;
-                                    this.DbValues.TryRemove(key, out v);
+                                    this.DbValues.TryRemove(key, out _);
+                                    this.DbValuesExpire.TryRemove(key, out _);
 
                                     //      SERVER : END
                                     conn.Send(
