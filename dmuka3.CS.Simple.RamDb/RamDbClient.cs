@@ -206,8 +206,8 @@ namespace dmuka3.CS.Simple.RamDb
         {
             lock (lockObj)
             {
-                // - IF PROCESS TYPE IS "GET VALUE BY KEY"
-                //      CLIENT : GET_VALUE <key>
+                // - IF PROCESS TYPE IS "DELETE VALUE BY KEY"
+                //      CLIENT : DELETE_VALUE <key>
                 this._conn.Send(
                     this._rsaServer.Encrypt(
                         Encoding.UTF8.GetBytes(
@@ -242,7 +242,7 @@ namespace dmuka3.CS.Simple.RamDb
         {
             lock (lockObj)
             {
-                // - IF PROCESS TYPE IS "GET VALUE BY KEY"
+                // - IF PROCESS TYPE IS "SET VALUE BY KEY"
                 //      CLIENT : SET_VALUE <key>
                 this._conn.Send(
                     this._rsaServer.Encrypt(
@@ -292,8 +292,8 @@ namespace dmuka3.CS.Simple.RamDb
         {
             lock (lockObj)
             {
-                // - IF PROCESS TYPE IS "GET VALUE BY KEY"
-                //      CLIENT : SET_VALUE <key>
+                // - IF PROCESS TYPE IS "INCREMENT VALUE BY KEY"
+                //      CLIENT : INCREMENT_VALUE <key>
                 this._conn.Send(
                     this._rsaServer.Encrypt(
                         Encoding.UTF8.GetBytes(
@@ -351,8 +351,8 @@ namespace dmuka3.CS.Simple.RamDb
         {
             lock (lockObj)
             {
-                // - IF PROCESS TYPE IS "GET VALUE BY KEY"
-                //      CLIENT : SET_VALUE <key>
+                // - IF PROCESS TYPE IS "DECREMENT VALUE BY KEY"
+                //      CLIENT : DECREMENT_VALUE <key>
                 this._conn.Send(
                     this._rsaServer.Encrypt(
                         Encoding.UTF8.GetBytes(
