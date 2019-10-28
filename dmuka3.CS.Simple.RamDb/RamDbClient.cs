@@ -1,5 +1,4 @@
-﻿using dmuka3.CS.Simple.RSA;
-using dmuka3.CS.Simple.TCP;
+﻿using dmuka3.CS.Simple.TCP;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -41,16 +40,6 @@ namespace dmuka3.CS.Simple.RamDb
         /// For dmuka protocol.
         /// </summary>
         private TCPClientConnection _conn = null;
-
-        /// <summary>
-        /// RSA for client side.
-        /// </summary>
-        private RSAKey _rsaClient = null;
-
-        /// <summary>
-        /// RSA for server side.
-        /// </summary>
-        private RSAKey _rsaServer = null;
         #endregion
 
         #region Constructors
@@ -74,8 +63,8 @@ namespace dmuka3.CS.Simple.RamDb
         /// </summary>
         /// <param name="userName">Server authentication user name.</param>
         /// <param name="password">Server authentication password.</param>
-        /// <param name="sslDwKeySize">SSL key size as bit.</param>
-        public void Start(string userName, string password, int sslDwKeySize)
+        /// <param name="dwKeySize">SSL key size as bit.</param>
+        public void Start(string userName, string password, int dwKeySize)
         {
             if (userName.Contains('<') || userName.Contains('>') || password.Contains('<') || password.Contains('>'))
                 throw new Exception("UserName and Password can't containt '<' or '>'!");
@@ -90,32 +79,17 @@ namespace dmuka3.CS.Simple.RamDb
 
             if (serverHi == RamDbMessages.SERVER_HI)
             {
-                this._rsaClient = new RSAKey(sslDwKeySize);
-
-                // CLIENT : public_key
-                this._conn.Send(
-                    Encoding.UTF8.GetBytes(
-                        this._rsaClient.PublicKey
-                        ));
-
-                // SERVER : public_key
-                this._rsaServer = new RSAKey(
-                                    Encoding.UTF8.GetString(
-                                        this._rsaClient.Decrypt(
-                                            this._conn.Receive()
-                                        )));
+                this._conn.StartDMUKA3RSA(dwKeySize);
 
                 // CLIENT : HI <user_name> <password>
                 this._conn.Send(
-                    this._rsaServer.Encrypt(
-                        Encoding.UTF8.GetBytes(
-                            $"{RamDbMessages.CLIENT_HI} <{userName}> <{password}>"
-                            )));
+                    Encoding.UTF8.GetBytes(
+                        $"{RamDbMessages.CLIENT_HI} <{userName}> <{password}>"
+                        ));
 
                 var serverResAuth = Encoding.UTF8.GetString(
-                                        this._rsaClient.Decrypt(
-                                            this._conn.Receive()
-                                        ));
+                                        this._conn.Receive()
+                                        );
 
                 if (serverResAuth == RamDbMessages.SERVER_NOT_AUTHORIZED)
                     // - IF AUTH FAIL
@@ -144,25 +118,22 @@ namespace dmuka3.CS.Simple.RamDb
                 // - IF PROCESS TYPE IS "GET VALUE BY KEY"
                 //      CLIENT : GET_VALUE <key>
                 this._conn.Send(
-                    this._rsaServer.Encrypt(
-                        Encoding.UTF8.GetBytes(
-                            $"{RamDbMessages.CLIENT_GET_VALUE} <{key}>"
-                            )));
+                    Encoding.UTF8.GetBytes(
+                        $"{RamDbMessages.CLIENT_GET_VALUE} <{key}>"
+                        ));
 
 
                 var serverResFound = Encoding.UTF8.GetString(
-                                        this._rsaClient.Decrypt(
-                                            this._conn.Receive()
-                                        ));
+                                        this._conn.Receive()
+                                        );
                 if (serverResFound == RamDbMessages.SERVER_NOT_FOUND)
                 {
                     // - IF DATA NOT EXISTS
                     //      SERVER : NOT_FOUND
                     //      SERVER : END
                     var serverResEnd = Encoding.UTF8.GetString(
-                                            this._rsaClient.Decrypt(
-                                                this._conn.Receive()
-                                            ));
+                                            this._conn.Receive()
+                                            );
 
                     if (serverResEnd == RamDbMessages.SERVER_END)
                         return null;
@@ -175,15 +146,13 @@ namespace dmuka3.CS.Simple.RamDb
                     //      SERVER : FOUND
                     //      SERVER : data
                     var data = Encoding.UTF8.GetString(
-                                            this._rsaClient.Decrypt(
-                                                this._conn.Receive()
-                                            ));
+                                            this._conn.Receive()
+                                            );
 
                     //      SERVER : END
                     var serverResEnd = Encoding.UTF8.GetString(
-                                            this._rsaClient.Decrypt(
-                                                this._conn.Receive()
-                                            ));
+                                            this._conn.Receive()
+                                            );
 
                     if (serverResEnd == RamDbMessages.SERVER_END)
                         return data;
@@ -421,20 +390,18 @@ namespace dmuka3.CS.Simple.RamDb
                 // - IF PROCESS TYPE IS "DELETE VALUE BY KEY"
                 //      CLIENT : DELETE_VALUE <key>
                 this._conn.Send(
-                    this._rsaServer.Encrypt(
-                        Encoding.UTF8.GetBytes(
-                            $"{RamDbMessages.CLIENT_DELETE_VALUE} <{key}>"
-                            )));
+                    Encoding.UTF8.GetBytes(
+                        $"{RamDbMessages.CLIENT_DELETE_VALUE} <{key}>"
+                        ));
 
 
                 //      SERVER : END
                 var serverResEnd = Encoding.UTF8.GetString(
-                                        this._rsaClient.Decrypt(
-                                            this._conn.Receive()
-                                        ));
+                                        this._conn.Receive()
+                                        );
 
                 if (serverResEnd == RamDbMessages.SERVER_END)
-                { }
+                    return;
                 else if (serverResEnd.StartsWith(RamDbMessages.SERVER_ERROR))
                     throw new Exception(serverResEnd);
                 else
@@ -457,32 +424,28 @@ namespace dmuka3.CS.Simple.RamDb
                 // - IF PROCESS TYPE IS "SET VALUE BY KEY"
                 //      CLIENT : SET_VALUE <key>
                 this._conn.Send(
-                    this._rsaServer.Encrypt(
-                        Encoding.UTF8.GetBytes(
-                            $"{RamDbMessages.CLIENT_SET_VALUE} <{key}> <{time.Ticks.ToString(CultureInfo.InvariantCulture)}>"
-                            )));
+                    Encoding.UTF8.GetBytes(
+                        $"{RamDbMessages.CLIENT_SET_VALUE} <{key}> <{time.Ticks.ToString(CultureInfo.InvariantCulture)}>"
+                        ));
 
                 //      CLIENT : data
                 this._conn.Send(
-                    this._rsaServer.Encrypt(
-                        Encoding.UTF8.GetBytes(
-                            value
-                            )));
+                    Encoding.UTF8.GetBytes(
+                        value
+                        ));
 
 
                 //      SERVER : ADDED / UPDATED
                 var serverResAddedUpdated = Encoding.UTF8.GetString(
-                                        this._rsaClient.Decrypt(
                                             this._conn.Receive()
-                                        ));
+                                            );
                 added = serverResAddedUpdated == RamDbMessages.SERVER_ADDED;
                 if (added || serverResAddedUpdated == RamDbMessages.SERVER_UPDATED)
                 {
                     //      SERVER : END
                     var serverResEnd = Encoding.UTF8.GetString(
-                                            this._rsaClient.Decrypt(
-                                                this._conn.Receive()
-                                            ));
+                                            this._conn.Receive()
+                                            );
 
                     if (serverResEnd != RamDbMessages.SERVER_END)
                         throw __wrongProtocolException;
@@ -691,24 +654,21 @@ namespace dmuka3.CS.Simple.RamDb
                 // - IF PROCESS TYPE IS "INCREMENT VALUE BY KEY"
                 //      CLIENT : INCREMENT_VALUE <key>
                 this._conn.Send(
-                    this._rsaServer.Encrypt(
-                        Encoding.UTF8.GetBytes(
-                            $"{RamDbMessages.CLIENT_INCREMENT_VALUE} <{key}>"
-                            )));
+                    Encoding.UTF8.GetBytes(
+                        $"{RamDbMessages.CLIENT_INCREMENT_VALUE} <{key}>"
+                        ));
 
                 //      CLIENT : data
                 this._conn.Send(
-                    this._rsaServer.Encrypt(
-                        Encoding.UTF8.GetBytes(
-                            value.ToString(CultureInfo.InvariantCulture)
-                            )));
+                    Encoding.UTF8.GetBytes(
+                        value.ToString(CultureInfo.InvariantCulture)
+                        ));
 
 
                 //      SERVER : data
                 var serverRes = Encoding.UTF8.GetString(
-                                        this._rsaClient.Decrypt(
-                                            this._conn.Receive()
-                                        ));
+                                        this._conn.Receive()
+                                        );
 
                 decimal result;
                 try
@@ -726,9 +686,8 @@ namespace dmuka3.CS.Simple.RamDb
 
                 //      SERVER : END
                 var serverResEnd = Encoding.UTF8.GetString(
-                                        this._rsaClient.Decrypt(
-                                            this._conn.Receive()
-                                        ));
+                                        this._conn.Receive()
+                                        );
 
                 if (serverResEnd != RamDbMessages.SERVER_END)
                     throw __wrongProtocolException;
@@ -750,24 +709,21 @@ namespace dmuka3.CS.Simple.RamDb
                 // - IF PROCESS TYPE IS "DECREMENT VALUE BY KEY"
                 //      CLIENT : DECREMENT_VALUE <key>
                 this._conn.Send(
-                    this._rsaServer.Encrypt(
-                        Encoding.UTF8.GetBytes(
-                            $"{RamDbMessages.CLIENT_DECREMENT_VALUE} <{key}>"
-                            )));
+                    Encoding.UTF8.GetBytes(
+                        $"{RamDbMessages.CLIENT_DECREMENT_VALUE} <{key}>"
+                        ));
 
                 //      CLIENT : data
                 this._conn.Send(
-                    this._rsaServer.Encrypt(
-                        Encoding.UTF8.GetBytes(
-                            value.ToString(CultureInfo.InvariantCulture)
-                            )));
+                    Encoding.UTF8.GetBytes(
+                        value.ToString(CultureInfo.InvariantCulture)
+                        ));
 
 
                 //      SERVER : data
                 var serverRes = Encoding.UTF8.GetString(
-                                        this._rsaClient.Decrypt(
-                                            this._conn.Receive()
-                                        ));
+                                        this._conn.Receive()
+                                        );
 
                 decimal result;
                 try
@@ -785,9 +741,8 @@ namespace dmuka3.CS.Simple.RamDb
 
                 //      SERVER : END
                 var serverResEnd = Encoding.UTF8.GetString(
-                                        this._rsaClient.Decrypt(
-                                            this._conn.Receive()
-                                        ));
+                                        this._conn.Receive()
+                                        );
 
                 if (serverResEnd != RamDbMessages.SERVER_END)
                     throw __wrongProtocolException;
@@ -831,10 +786,9 @@ namespace dmuka3.CS.Simple.RamDb
             try
             {
                 this._conn.Send(
-                    this._rsaServer.Encrypt(
-                        Encoding.UTF8.GetBytes(
-                            $"{RamDbMessages.CLIENT_CLOSE}"
-                            )));
+                    Encoding.UTF8.GetBytes(
+                        $"{RamDbMessages.CLIENT_CLOSE}"
+                        ));
             }
             catch
             { }

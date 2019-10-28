@@ -1,5 +1,4 @@
-﻿using dmuka3.CS.Simple.RSA;
-using dmuka3.CS.Simple.Semaphore;
+﻿using dmuka3.CS.Simple.Semaphore;
 using dmuka3.CS.Simple.TCP;
 using System;
 using System.Collections.Concurrent;
@@ -43,9 +42,9 @@ namespace dmuka3.CS.Simple.RamDb
         public int CoreCount { get; private set; }
 
         /// <summary>
-        /// SSL key size as bit.
+        /// RSA key size as bit.
         /// </summary>
-        public int SSLDwKeySize { get; private set; }
+        public int RSADwKeySize { get; private set; }
 
         /// <summary>
         /// Server.
@@ -74,16 +73,16 @@ namespace dmuka3.CS.Simple.RamDb
         /// </summary>
         /// <param name="userName">Server authentication user name.</param>
         /// <param name="password">Server authentication password.</param>
-        /// <param name="sslDwKeySize">SSL key size as bit.</param>
+        /// <param name="rsaDwKeySize">SSL key size as bit.</param>
         /// <param name="coreCount">Maximum connection count at the same time processing.</param>
         /// <param name="port">Server port.</param>
         /// <param name="timeOutAuth">Time out auth as second.</param>
-        public RamDbServer(string userName, string password, int sslDwKeySize, int coreCount, int port, int timeOutAuth = 1)
+        public RamDbServer(string userName, string password, int rsaDwKeySize, int coreCount, int port, int timeOutAuth = 1)
         {
             this.UserName = userName;
             this.Password = password;
             this.TimeOutAuth = timeOutAuth;
-            this.SSLDwKeySize = sslDwKeySize;
+            this.RSADwKeySize = rsaDwKeySize;
             this._listener = new TcpListener(IPAddress.Any, port);
             this._actionQueueConnections = new ActionQueue(coreCount);
         }
@@ -97,7 +96,6 @@ namespace dmuka3.CS.Simple.RamDb
         {
             this._actionQueueConnections.Start();
             this._listener.Start();
-            var rsaServer = new RSAKey(this.SSLDwKeySize);
 
             while (true)
             {
@@ -123,22 +121,11 @@ namespace dmuka3.CS.Simple.RamDb
                                 RamDbMessages.SERVER_HI
                                 ));
 
-                        // CLIENT : public_key
-                        var clientPublicKey = Encoding.UTF8.GetString(
-                                                conn.Receive(maxPackageSize: 10240, timeOutSecond: this.TimeOutAuth)
-                                                );
-                        var rsaClient = new RSAKey(clientPublicKey);
-
-                        // SERVER : public_key
-                        conn.Send(
-                            rsaClient.Encrypt(
-                                Encoding.UTF8.GetBytes(
-                                    rsaServer.PublicKey
-                                    )));
+                        conn.StartDMUKA3RSA(this.RSADwKeySize);
 
                         // CLIENT : HI <user_name> <password>
                         var clientHi = Encoding.UTF8.GetString(
-                                            rsaServer.Decrypt(conn.Receive(timeOutSecond: this.TimeOutAuth))
+                                            conn.Receive(timeOutSecond: this.TimeOutAuth)
                                             );
                         var splitClientHi = clientHi.Split('<');
                         var clientHiUserName = splitClientHi[1].Split('>')[0];
@@ -148,10 +135,9 @@ namespace dmuka3.CS.Simple.RamDb
                             // - IF AUTH FAIL
                             //      SERVER : NOT_AUTHORIZED
                             conn.Send(
-                                rsaClient.Encrypt(
-                                    Encoding.UTF8.GetBytes(
-                                        RamDbMessages.SERVER_NOT_AUTHORIZED
-                                        )));
+                                Encoding.UTF8.GetBytes(
+                                    RamDbMessages.SERVER_NOT_AUTHORIZED
+                                    ));
                             conn.Dispose();
                         }
                         else
@@ -159,16 +145,15 @@ namespace dmuka3.CS.Simple.RamDb
                             // - IF AUTH PASS
                             //      SERVER : OK
                             conn.Send(
-                                rsaClient.Encrypt(
-                                    Encoding.UTF8.GetBytes(
-                                        RamDbMessages.SERVER_OK
-                                        )));
+                                Encoding.UTF8.GetBytes(
+                                    RamDbMessages.SERVER_OK
+                                    ));
 
                             while (true)
                             {
                                 var clientProcess = Encoding.UTF8.GetString(
-                                                    rsaServer.Decrypt(conn.Receive())
-                                                    );
+                                                        conn.Receive()
+                                                        );
 
                                 #region GET_VALUE
                                 if (clientProcess.StartsWith(RamDbMessages.CLIENT_GET_VALUE))
@@ -183,10 +168,9 @@ namespace dmuka3.CS.Simple.RamDb
                                     catch (Exception ex)
                                     {
                                         conn.Send(
-                                            rsaClient.Encrypt(
-                                                Encoding.UTF8.GetBytes(
-                                                    $"{RamDbMessages.SERVER_ERROR} <{nameof(RamDbMessages.CLIENT_GET_VALUE)}.GetKey> \"{ex.ToString().Replace("\"", "\\\"")}\""
-                                                    )));
+                                            Encoding.UTF8.GetBytes(
+                                                $"{RamDbMessages.SERVER_ERROR} <{nameof(RamDbMessages.CLIENT_GET_VALUE)}.GetKey> \"{ex.ToString().Replace("\"", "\\\"")}\""
+                                                ));
                                         continue;
                                     }
 
@@ -196,41 +180,36 @@ namespace dmuka3.CS.Simple.RamDb
                                         // - IF DATA EXISTS
                                         //      SERVER : FOUND
                                         conn.Send(
-                                            rsaClient.Encrypt(
-                                                Encoding.UTF8.GetBytes(
-                                                    RamDbMessages.SERVER_FOUND
-                                                    )));
+                                            Encoding.UTF8.GetBytes(
+                                                RamDbMessages.SERVER_FOUND
+                                                ));
 
                                         //      SERVER : data
                                         conn.Send(
-                                            rsaClient.Encrypt(
-                                                Encoding.UTF8.GetBytes(
-                                                    v
-                                                    )));
+                                            Encoding.UTF8.GetBytes(
+                                                v
+                                                ));
 
                                         //      SERVER : END
                                         conn.Send(
-                                            rsaClient.Encrypt(
-                                                Encoding.UTF8.GetBytes(
-                                                    RamDbMessages.SERVER_END
-                                                    )));
+                                            Encoding.UTF8.GetBytes(
+                                                RamDbMessages.SERVER_END
+                                                ));
                                     }
                                     else
                                     {
                                         // - IF DATA NOT EXISTS
                                         //      SERVER : NOT_FOUND
                                         conn.Send(
-                                            rsaClient.Encrypt(
-                                                Encoding.UTF8.GetBytes(
-                                                    RamDbMessages.SERVER_NOT_FOUND
-                                                    )));
+                                            Encoding.UTF8.GetBytes(
+                                                RamDbMessages.SERVER_NOT_FOUND
+                                                ));
 
                                         //      SERVER : END
                                         conn.Send(
-                                            rsaClient.Encrypt(
-                                                Encoding.UTF8.GetBytes(
-                                                    RamDbMessages.SERVER_END
-                                                    )));
+                                            Encoding.UTF8.GetBytes(
+                                                RamDbMessages.SERVER_END
+                                                ));
                                     }
                                 }
                                 #endregion
@@ -250,10 +229,9 @@ namespace dmuka3.CS.Simple.RamDb
                                     catch (Exception ex)
                                     {
                                         conn.Send(
-                                            rsaClient.Encrypt(
-                                                Encoding.UTF8.GetBytes(
-                                                    $"{RamDbMessages.SERVER_ERROR} <{nameof(RamDbMessages.CLIENT_SET_VALUE)}.GetKey> \"{ex.ToString().Replace("\"", "\\\"")}\""
-                                                    )));
+                                            Encoding.UTF8.GetBytes(
+                                                $"{RamDbMessages.SERVER_ERROR} <{nameof(RamDbMessages.CLIENT_SET_VALUE)}.GetKey> \"{ex.ToString().Replace("\"", "\\\"")}\""
+                                                ));
                                         continue;
                                     }
 
@@ -268,16 +246,15 @@ namespace dmuka3.CS.Simple.RamDb
                                     catch (Exception ex)
                                     {
                                         conn.Send(
-                                            rsaClient.Encrypt(
-                                                Encoding.UTF8.GetBytes(
-                                                    $"{RamDbMessages.SERVER_ERROR} <{nameof(RamDbMessages.CLIENT_SET_VALUE)}.GetTime> \"{ex.ToString().Replace("\"", "\\\"")}\""
-                                                    )));
+                                            Encoding.UTF8.GetBytes(
+                                                $"{RamDbMessages.SERVER_ERROR} <{nameof(RamDbMessages.CLIENT_SET_VALUE)}.GetTime> \"{ex.ToString().Replace("\"", "\\\"")}\""
+                                                ));
                                         continue;
                                     }
 
                                     //      CLIENT : data
                                     var data = Encoding.UTF8.GetString(
-                                                        rsaServer.Decrypt(conn.Receive())
+                                                        conn.Receive()
                                                         );
                                     bool added = true;
                                     this.DbValues.AddOrUpdate(key, (o) => data, (o, x) =>
@@ -291,17 +268,15 @@ namespace dmuka3.CS.Simple.RamDb
 
                                     //      SERVER : ADDED / UPDATED
                                     conn.Send(
-                                        rsaClient.Encrypt(
-                                            Encoding.UTF8.GetBytes(
-                                                added ? RamDbMessages.SERVER_ADDED : RamDbMessages.SERVER_UPDATED
-                                                )));
+                                        Encoding.UTF8.GetBytes(
+                                            added ? RamDbMessages.SERVER_ADDED : RamDbMessages.SERVER_UPDATED
+                                            ));
 
                                     //      SERVER : END
                                     conn.Send(
-                                        rsaClient.Encrypt(
-                                            Encoding.UTF8.GetBytes(
-                                                RamDbMessages.SERVER_END
-                                                )));
+                                        Encoding.UTF8.GetBytes(
+                                            RamDbMessages.SERVER_END
+                                            ));
                                 }
                                 #endregion
                                 #region DELETE_VALUE
@@ -318,10 +293,9 @@ namespace dmuka3.CS.Simple.RamDb
                                     catch (Exception ex)
                                     {
                                         conn.Send(
-                                            rsaClient.Encrypt(
-                                                Encoding.UTF8.GetBytes(
-                                                    $"{RamDbMessages.SERVER_ERROR} <{nameof(RamDbMessages.CLIENT_DELETE_VALUE)}.GetKey> \"{ex.ToString().Replace("\"", "\\\"")}\""
-                                                    )));
+                                            Encoding.UTF8.GetBytes(
+                                                $"{RamDbMessages.SERVER_ERROR} <{nameof(RamDbMessages.CLIENT_DELETE_VALUE)}.GetKey> \"{ex.ToString().Replace("\"", "\\\"")}\""
+                                                ));
                                         continue;
                                     }
 
@@ -330,10 +304,9 @@ namespace dmuka3.CS.Simple.RamDb
 
                                     //      SERVER : END
                                     conn.Send(
-                                        rsaClient.Encrypt(
-                                            Encoding.UTF8.GetBytes(
-                                                RamDbMessages.SERVER_END
-                                                )));
+                                        Encoding.UTF8.GetBytes(
+                                            RamDbMessages.SERVER_END
+                                            ));
                                 }
                                 #endregion
                                 #region INCREMENT_VALUE
@@ -350,10 +323,9 @@ namespace dmuka3.CS.Simple.RamDb
                                     catch (Exception ex)
                                     {
                                         conn.Send(
-                                            rsaClient.Encrypt(
-                                                Encoding.UTF8.GetBytes(
-                                                    $"{RamDbMessages.SERVER_ERROR} <{nameof(RamDbMessages.CLIENT_INCREMENT_VALUE)}.GetKey> \"{ex.ToString().Replace("\"", "\\\"")}\""
-                                                    )));
+                                            Encoding.UTF8.GetBytes(
+                                                $"{RamDbMessages.SERVER_ERROR} <{nameof(RamDbMessages.CLIENT_INCREMENT_VALUE)}.GetKey> \"{ex.ToString().Replace("\"", "\\\"")}\""
+                                                ));
                                         continue;
                                     }
 
@@ -364,16 +336,15 @@ namespace dmuka3.CS.Simple.RamDb
                                     {
                                         data = Convert.ToDecimal(
                                                     Encoding.UTF8.GetString(
-                                                        rsaServer.Decrypt(conn.Receive())
+                                                        conn.Receive()
                                                         ), CultureInfo.InvariantCulture);
                                     }
                                     catch (Exception ex)
                                     {
                                         conn.Send(
-                                            rsaClient.Encrypt(
-                                                Encoding.UTF8.GetBytes(
-                                                    $"{RamDbMessages.SERVER_ERROR} <{nameof(RamDbMessages.CLIENT_INCREMENT_VALUE)}.GetData> \"{ex.ToString().Replace("\"", "\\\"")}\""
-                                                    )));
+                                            Encoding.UTF8.GetBytes(
+                                                $"{RamDbMessages.SERVER_ERROR} <{nameof(RamDbMessages.CLIENT_INCREMENT_VALUE)}.GetData> \"{ex.ToString().Replace("\"", "\\\"")}\""
+                                                ));
                                         continue;
                                     }
 
@@ -394,26 +365,23 @@ namespace dmuka3.CS.Simple.RamDb
                                     catch (Exception ex)
                                     {
                                         conn.Send(
-                                            rsaClient.Encrypt(
-                                                Encoding.UTF8.GetBytes(
-                                                    $"{RamDbMessages.SERVER_ERROR} <{nameof(RamDbMessages.CLIENT_INCREMENT_VALUE)}.SetValue> \"{ex.ToString().Replace("\"", "\\\"")}\""
-                                                    )));
+                                            Encoding.UTF8.GetBytes(
+                                                $"{RamDbMessages.SERVER_ERROR} <{nameof(RamDbMessages.CLIENT_INCREMENT_VALUE)}.SetValue> \"{ex.ToString().Replace("\"", "\\\"")}\""
+                                                ));
                                         continue;
                                     }
 
                                     //      SERVER : data
                                     conn.Send(
-                                        rsaClient.Encrypt(
-                                            Encoding.UTF8.GetBytes(
-                                                lastData
-                                                )));
+                                        Encoding.UTF8.GetBytes(
+                                            lastData
+                                            ));
 
                                     //      SERVER : END
                                     conn.Send(
-                                        rsaClient.Encrypt(
-                                            Encoding.UTF8.GetBytes(
-                                                RamDbMessages.SERVER_END
-                                                )));
+                                        Encoding.UTF8.GetBytes(
+                                            RamDbMessages.SERVER_END
+                                            ));
                                 }
                                 #endregion
                                 #region DECREMENT_VALUE
@@ -430,10 +398,9 @@ namespace dmuka3.CS.Simple.RamDb
                                     catch (Exception ex)
                                     {
                                         conn.Send(
-                                            rsaClient.Encrypt(
-                                                Encoding.UTF8.GetBytes(
-                                                    $"{RamDbMessages.SERVER_ERROR} <{nameof(RamDbMessages.CLIENT_DECREMENT_VALUE)}.GetKey> \"{ex.ToString().Replace("\"", "\\\"")}\""
-                                                    )));
+                                            Encoding.UTF8.GetBytes(
+                                                $"{RamDbMessages.SERVER_ERROR} <{nameof(RamDbMessages.CLIENT_DECREMENT_VALUE)}.GetKey> \"{ex.ToString().Replace("\"", "\\\"")}\""
+                                                ));
                                         continue;
                                     }
 
@@ -444,16 +411,15 @@ namespace dmuka3.CS.Simple.RamDb
                                     {
                                         data = Convert.ToDecimal(
                                                     Encoding.UTF8.GetString(
-                                                        rsaServer.Decrypt(conn.Receive())
+                                                        conn.Receive()
                                                         ), CultureInfo.InvariantCulture);
                                     }
                                     catch (Exception ex)
                                     {
                                         conn.Send(
-                                            rsaClient.Encrypt(
-                                                Encoding.UTF8.GetBytes(
-                                                    $"{RamDbMessages.SERVER_ERROR} <{nameof(RamDbMessages.CLIENT_DECREMENT_VALUE)}.GetData> \"{ex.ToString().Replace("\"", "\\\"")}\""
-                                                    )));
+                                            Encoding.UTF8.GetBytes(
+                                                $"{RamDbMessages.SERVER_ERROR} <{nameof(RamDbMessages.CLIENT_DECREMENT_VALUE)}.GetData> \"{ex.ToString().Replace("\"", "\\\"")}\""
+                                                ));
                                         continue;
                                     }
 
@@ -473,26 +439,23 @@ namespace dmuka3.CS.Simple.RamDb
                                     catch (Exception ex)
                                     {
                                         conn.Send(
-                                            rsaClient.Encrypt(
-                                                Encoding.UTF8.GetBytes(
-                                                    $"{RamDbMessages.SERVER_ERROR} <{nameof(RamDbMessages.CLIENT_DECREMENT_VALUE)}.SetValue> \"{ex.ToString().Replace("\"", "\\\"")}\""
-                                                    )));
+                                            Encoding.UTF8.GetBytes(
+                                                $"{RamDbMessages.SERVER_ERROR} <{nameof(RamDbMessages.CLIENT_DECREMENT_VALUE)}.SetValue> \"{ex.ToString().Replace("\"", "\\\"")}\""
+                                                ));
                                         continue;
                                     }
 
                                     //      SERVER : data
                                     conn.Send(
-                                        rsaClient.Encrypt(
-                                            Encoding.UTF8.GetBytes(
-                                                lastData
-                                                )));
+                                        Encoding.UTF8.GetBytes(
+                                            lastData
+                                            ));
 
                                     //      SERVER : END
                                     conn.Send(
-                                        rsaClient.Encrypt(
-                                            Encoding.UTF8.GetBytes(
-                                                RamDbMessages.SERVER_END
-                                                )));
+                                        Encoding.UTF8.GetBytes(
+                                            RamDbMessages.SERVER_END
+                                            ));
                                 }
                                 #endregion
                                 #region CLOSE
