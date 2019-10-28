@@ -227,5 +227,136 @@ namespace dmuka3.CS.Simple.RamDb.NUnit
             Assert.IsFalse(err);
             Assert.AreEqual(l.Count, 50);
         }
+
+        [Test]
+        public void DataTypeTest()
+        {
+            RamDbServer server = new RamDbServer("muhammed", "123123", 2048, 4, 9090, timeOutAuth: 1);
+            new Thread(() =>
+            {
+                server.Start();
+            }).Start();
+
+            Thread.Sleep(1000);
+
+            RamDbClient client = new RamDbClient("127.0.0.1", 9090);
+            client.Start("muhammed", "123123", 2048);
+
+            bool err = false;
+
+            try
+            {
+                // Boolean
+                client.SetValueAsBool("TEST_DATA_KEY", true, TimeSpan.FromSeconds(30), out _);
+                Assert.AreEqual(client.GetValueAsBool("TEST_DATA_KEY"), true);
+
+                client.SetValueAsBool("TEST_DATA_KEY", false, TimeSpan.FromSeconds(30), out _);
+                Assert.AreEqual(client.GetValueAsBool("TEST_DATA_KEY"), false);
+
+                // Byte
+                client.SetValueAsByte("TEST_DATA_KEY", 123, TimeSpan.FromSeconds(30), out _);
+                Assert.AreEqual(client.GetValueAsByte("TEST_DATA_KEY"), 123);
+
+                client.SetValueAsByte("TEST_DATA_KEY", 97, TimeSpan.FromSeconds(30), out _);
+                Assert.AreEqual(client.GetValueAsByte("TEST_DATA_KEY"), 97);
+
+                // SByte
+                client.SetValueAsSByte("TEST_DATA_KEY", 123, TimeSpan.FromSeconds(30), out _);
+                Assert.AreEqual(client.GetValueAsSByte("TEST_DATA_KEY"), 123);
+
+                client.SetValueAsSByte("TEST_DATA_KEY", 97, TimeSpan.FromSeconds(30), out _);
+                Assert.AreEqual(client.GetValueAsSByte("TEST_DATA_KEY"), 97);
+
+                // Int16
+                client.SetValueAsInt16("TEST_DATA_KEY", 123, TimeSpan.FromSeconds(30), out _);
+                Assert.AreEqual(client.GetValueAsInt16("TEST_DATA_KEY"), 123);
+
+                client.SetValueAsInt16("TEST_DATA_KEY", 97, TimeSpan.FromSeconds(30), out _);
+                Assert.AreEqual(client.GetValueAsInt16("TEST_DATA_KEY"), 97);
+
+                // UInt16
+                client.SetValueAsUInt16("TEST_DATA_KEY", 123, TimeSpan.FromSeconds(30), out _);
+                Assert.AreEqual(client.GetValueAsUInt16("TEST_DATA_KEY"), 123);
+
+                client.SetValueAsUInt16("TEST_DATA_KEY", 97, TimeSpan.FromSeconds(30), out _);
+                Assert.AreEqual(client.GetValueAsUInt16("TEST_DATA_KEY"), 97);
+
+                // Int32
+                client.SetValueAsInt32("TEST_DATA_KEY", 123, TimeSpan.FromSeconds(30), out _);
+                Assert.AreEqual(client.GetValueAsInt32("TEST_DATA_KEY"), 123);
+
+                client.SetValueAsInt32("TEST_DATA_KEY", 97, TimeSpan.FromSeconds(30), out _);
+                Assert.AreEqual(client.GetValueAsInt32("TEST_DATA_KEY"), 97);
+
+                // UInt32
+                client.SetValueAsUInt32("TEST_DATA_KEY", 123, TimeSpan.FromSeconds(30), out _);
+                Assert.AreEqual(client.GetValueAsUInt32("TEST_DATA_KEY"), 123);
+
+                client.SetValueAsUInt32("TEST_DATA_KEY", 97, TimeSpan.FromSeconds(30), out _);
+                Assert.AreEqual(client.GetValueAsUInt32("TEST_DATA_KEY"), 97);
+
+                // Int64
+                client.SetValueAsInt64("TEST_DATA_KEY", 123, TimeSpan.FromSeconds(30), out _);
+                Assert.AreEqual(client.GetValueAsInt64("TEST_DATA_KEY"), 123);
+
+                client.SetValueAsInt64("TEST_DATA_KEY", 97, TimeSpan.FromSeconds(30), out _);
+                Assert.AreEqual(client.GetValueAsInt64("TEST_DATA_KEY"), 97);
+
+                // UInt64
+                client.SetValueAsUInt64("TEST_DATA_KEY", 123, TimeSpan.FromSeconds(30), out _);
+                Assert.AreEqual(client.GetValueAsUInt64("TEST_DATA_KEY"), 123);
+
+                client.SetValueAsUInt64("TEST_DATA_KEY", 97, TimeSpan.FromSeconds(30), out _);
+                Assert.AreEqual(client.GetValueAsUInt64("TEST_DATA_KEY"), 97);
+
+                // Single
+                client.SetValueAsSingle("TEST_DATA_KEY", 123.45f, TimeSpan.FromSeconds(30), out _);
+                Assert.AreEqual(client.GetValueAsSingle("TEST_DATA_KEY"), 123.45f);
+
+                client.SetValueAsSingle("TEST_DATA_KEY", 97.3678f, TimeSpan.FromSeconds(30), out _);
+                Assert.AreEqual(client.GetValueAsSingle("TEST_DATA_KEY"), 97.3678f);
+
+                // Double
+                client.SetValueAsDouble("TEST_DATA_KEY", 123.45d, TimeSpan.FromSeconds(30), out _);
+                Assert.AreEqual(client.GetValueAsDouble("TEST_DATA_KEY"), 123.45d);
+
+                client.SetValueAsDouble("TEST_DATA_KEY", 97.3678d, TimeSpan.FromSeconds(30), out _);
+                Assert.AreEqual(client.GetValueAsDouble("TEST_DATA_KEY"), 97.3678d);
+
+                // Decimal
+                client.SetValueAsDecimal("TEST_DATA_KEY", 123.45m, TimeSpan.FromSeconds(30), out _);
+                Assert.AreEqual(client.GetValueAsDecimal("TEST_DATA_KEY"), 123.45m);
+
+                client.SetValueAsDecimal("TEST_DATA_KEY", 97.3678m, TimeSpan.FromSeconds(30), out _);
+                Assert.AreEqual(client.GetValueAsDecimal("TEST_DATA_KEY"), 97.3678m);
+
+                // DateTime
+                var dtv = DateTime.Now;
+                client.SetValueAsDateTime("TEST_DATA_KEY", dtv, TimeSpan.FromSeconds(30), out _);
+                Assert.AreEqual(client.GetValueAsDateTime("TEST_DATA_KEY"), dtv);
+
+                dtv = DateTime.Now.AddMinutes(40);
+                client.SetValueAsDateTime("TEST_DATA_KEY", dtv, TimeSpan.FromSeconds(30), out _);
+                Assert.AreEqual(client.GetValueAsDateTime("TEST_DATA_KEY"), dtv);
+
+                // TimeSpan
+                var tsv = TimeSpan.FromDays(12);
+                client.SetValueAsTimeSpan("TEST_DATA_KEY", tsv, TimeSpan.FromSeconds(30), out _);
+                Assert.AreEqual(client.GetValueAsTimeSpan("TEST_DATA_KEY"), tsv);
+
+                tsv = TimeSpan.FromMinutes(52);
+                client.SetValueAsTimeSpan("TEST_DATA_KEY", tsv, TimeSpan.FromSeconds(30), out _);
+                Assert.AreEqual(client.GetValueAsTimeSpan("TEST_DATA_KEY"), tsv);
+            }
+            catch 
+            {
+                err = true;
+            }
+
+            client.Dispose();
+            server.Dispose();
+
+            Assert.IsFalse(err);
+        }
     }
 }

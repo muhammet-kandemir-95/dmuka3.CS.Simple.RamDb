@@ -197,6 +197,218 @@ namespace dmuka3.CS.Simple.RamDb
             }
         }
 
+        #region Get Value - Data Types
+        /// <summary>
+        /// Get a value from server by key.
+        /// </summary>
+        /// <param name="key">Key.</param>
+        /// <returns></returns>
+        public bool? GetValueAsBool(string key)
+        {
+            var v = this.GetValue(key);
+            if (v == null)
+                return null;
+
+            return Convert.ToBoolean(v, CultureInfo.InvariantCulture);
+        }
+
+        /// <summary>
+        /// Get a value from server by key.
+        /// </summary>
+        /// <param name="key">Key.</param>
+        /// <returns></returns>
+        public byte? GetValueAsByte(string key)
+        {
+            var v = this.GetValue(key);
+            if (v == null)
+                return null;
+
+            return Convert.ToByte(v, CultureInfo.InvariantCulture);
+        }
+
+        /// <summary>
+        /// Get a value from server by key.
+        /// </summary>
+        /// <param name="key">Key.</param>
+        /// <returns></returns>
+        public sbyte? GetValueAsSByte(string key)
+        {
+            var v = this.GetValue(key);
+            if (v == null)
+                return null;
+
+            return Convert.ToSByte(v, CultureInfo.InvariantCulture);
+        }
+
+        /// <summary>
+        /// Get a value from server by key.
+        /// </summary>
+        /// <param name="key">Key.</param>
+        /// <returns></returns>
+        public short? GetValueAsInt16(string key)
+        {
+            var v = this.GetValue(key);
+            if (v == null)
+                return null;
+
+            return Convert.ToInt16(v, CultureInfo.InvariantCulture);
+        }
+
+        /// <summary>
+        /// Get a value from server by key.
+        /// </summary>
+        /// <param name="key">Key.</param>
+        /// <returns></returns>
+        public ushort? GetValueAsUInt16(string key)
+        {
+            var v = this.GetValue(key);
+            if (v == null)
+                return null;
+
+            return Convert.ToUInt16(v, CultureInfo.InvariantCulture);
+        }
+
+        /// <summary>
+        /// Get a value from server by key.
+        /// </summary>
+        /// <param name="key">Key.</param>
+        /// <returns></returns>
+        public int? GetValueAsInt32(string key)
+        {
+            var v = this.GetValue(key);
+            if (v == null)
+                return null;
+
+            return Convert.ToInt32(v, CultureInfo.InvariantCulture);
+        }
+
+        /// <summary>
+        /// Get a value from server by key.
+        /// </summary>
+        /// <param name="key">Key.</param>
+        /// <returns></returns>
+        public uint? GetValueAsUInt32(string key)
+        {
+            var v = this.GetValue(key);
+            if (v == null)
+                return null;
+
+            return Convert.ToUInt32(v, CultureInfo.InvariantCulture);
+        }
+
+        /// <summary>
+        /// Get a value from server by key.
+        /// </summary>
+        /// <param name="key">Key.</param>
+        /// <returns></returns>
+        public long? GetValueAsInt64(string key)
+        {
+            var v = this.GetValue(key);
+            if (v == null)
+                return null;
+
+            return Convert.ToInt64(v, CultureInfo.InvariantCulture);
+        }
+
+        /// <summary>
+        /// Get a value from server by key.
+        /// </summary>
+        /// <param name="key">Key.</param>
+        /// <returns></returns>
+        public ulong? GetValueAsUInt64(string key)
+        {
+            var v = this.GetValue(key);
+            if (v == null)
+                return null;
+
+            return Convert.ToUInt64(v, CultureInfo.InvariantCulture);
+        }
+
+        /// <summary>
+        /// Get a value from server by key.
+        /// </summary>
+        /// <param name="key">Key.</param>
+        /// <returns></returns>
+        public float? GetValueAsSingle(string key)
+        {
+            var v = this.GetValue(key);
+            if (v == null)
+                return null;
+
+            return Convert.ToSingle(v, CultureInfo.InvariantCulture);
+        }
+
+        /// <summary>
+        /// Get a value from server by key.
+        /// </summary>
+        /// <param name="key">Key.</param>
+        /// <returns></returns>
+        public double? GetValueAsDouble(string key)
+        {
+            var v = this.GetValue(key);
+            if (v == null)
+                return null;
+
+            return Convert.ToDouble(v, CultureInfo.InvariantCulture);
+        }
+
+        /// <summary>
+        /// Get a value from server by key.
+        /// </summary>
+        /// <param name="key">Key.</param>
+        /// <returns></returns>
+        public decimal? GetValueAsDecimal(string key)
+        {
+            var v = this.GetValue(key);
+            if (v == null)
+                return null;
+
+            return Convert.ToDecimal(v, CultureInfo.InvariantCulture);
+        }
+
+        /// <summary>
+        /// Get a value from server by key.
+        /// </summary>
+        /// <param name="key">Key.</param>
+        /// <returns></returns>
+        public DateTime? GetValueAsDateTime(string key)
+        {
+            var v = this.GetValueAsInt64(key);
+            if (v == null)
+                return null;
+
+            return new DateTime(v.Value);
+        }
+
+        /// <summary>
+        /// Get a value from server by key.
+        /// </summary>
+        /// <param name="key">Key.</param>
+        /// <returns></returns>
+        public TimeSpan? GetValueAsTimeSpan(string key)
+        {
+            var v = this.GetValueAsInt64(key);
+            if (v == null)
+                return null;
+
+            return new TimeSpan(v.Value);
+        }
+
+        /// <summary>
+        /// Get a value from server by key.
+        /// </summary>
+        /// <param name="key">Key.</param>
+        /// <returns></returns>
+        public byte[] GetValueAsByteArray(string key)
+        {
+            var v = this.GetValue(key);
+            if (v == null)
+                return null;
+
+            return Convert.FromBase64String(v);
+        }
+        #endregion
+
         /// <summary>
         /// Delete a value on server by key.
         /// </summary>
@@ -281,6 +493,190 @@ namespace dmuka3.CS.Simple.RamDb
                     throw __wrongProtocolException;
             }
         }
+
+        #region Set Value - Data Types
+        /// <summary>
+        /// Set a value on server by key.
+        /// </summary>
+        /// <param name="key">Key.</param>
+        /// <param name="value">New value.</param>
+        /// <param name="time">Expire time.</param>
+        /// <param name="added">If data will be added, it will be true. If data already exists, it will be false.</param>
+        /// <returns></returns>
+        public void SetValueAsBool(string key, bool value, TimeSpan time, out bool added)
+        {
+            this.SetValue(key, value.ToString(CultureInfo.InvariantCulture), time, out added);
+        }
+
+        /// <summary>
+        /// Set a value on server by key.
+        /// </summary>
+        /// <param name="key">Key.</param>
+        /// <param name="value">New value.</param>
+        /// <param name="time">Expire time.</param>
+        /// <param name="added">If data will be added, it will be true. If data already exists, it will be false.</param>
+        /// <returns></returns>
+        public void SetValueAsByte(string key, byte value, TimeSpan time, out bool added)
+        {
+            this.SetValue(key, value.ToString(CultureInfo.InvariantCulture), time, out added);
+        }
+
+        /// <summary>
+        /// Set a value on server by key.
+        /// </summary>
+        /// <param name="key">Key.</param>
+        /// <param name="value">New value.</param>
+        /// <param name="time">Expire time.</param>
+        /// <param name="added">If data will be added, it will be true. If data already exists, it will be false.</param>
+        /// <returns></returns>
+        public void SetValueAsSByte(string key, sbyte value, TimeSpan time, out bool added)
+        {
+            this.SetValue(key, value.ToString(CultureInfo.InvariantCulture), time, out added);
+        }
+
+        /// <summary>
+        /// Set a value on server by key.
+        /// </summary>
+        /// <param name="key">Key.</param>
+        /// <param name="value">New value.</param>
+        /// <param name="time">Expire time.</param>
+        /// <param name="added">If data will be added, it will be true. If data already exists, it will be false.</param>
+        /// <returns></returns>
+        public void SetValueAsInt16(string key, short value, TimeSpan time, out bool added)
+        {
+            this.SetValue(key, value.ToString(CultureInfo.InvariantCulture), time, out added);
+        }
+
+        /// <summary>
+        /// Set a value on server by key.
+        /// </summary>
+        /// <param name="key">Key.</param>
+        /// <param name="value">New value.</param>
+        /// <param name="time">Expire time.</param>
+        /// <param name="added">If data will be added, it will be true. If data already exists, it will be false.</param>
+        /// <returns></returns>
+        public void SetValueAsUInt16(string key, ushort value, TimeSpan time, out bool added)
+        {
+            this.SetValue(key, value.ToString(CultureInfo.InvariantCulture), time, out added);
+        }
+
+        /// <summary>
+        /// Set a value on server by key.
+        /// </summary>
+        /// <param name="key">Key.</param>
+        /// <param name="value">New value.</param>
+        /// <param name="time">Expire time.</param>
+        /// <param name="added">If data will be added, it will be true. If data already exists, it will be false.</param>
+        /// <returns></returns>
+        public void SetValueAsInt32(string key, int value, TimeSpan time, out bool added)
+        {
+            this.SetValue(key, value.ToString(CultureInfo.InvariantCulture), time, out added);
+        }
+
+        /// <summary>
+        /// Set a value on server by key.
+        /// </summary>
+        /// <param name="key">Key.</param>
+        /// <param name="value">New value.</param>
+        /// <param name="time">Expire time.</param>
+        /// <param name="added">If data will be added, it will be true. If data already exists, it will be false.</param>
+        /// <returns></returns>
+        public void SetValueAsUInt32(string key, uint value, TimeSpan time, out bool added)
+        {
+            this.SetValue(key, value.ToString(CultureInfo.InvariantCulture), time, out added);
+        }
+
+        /// <summary>
+        /// Set a value on server by key.
+        /// </summary>
+        /// <param name="key">Key.</param>
+        /// <param name="value">New value.</param>
+        /// <param name="time">Expire time.</param>
+        /// <param name="added">If data will be added, it will be true. If data already exists, it will be false.</param>
+        /// <returns></returns>
+        public void SetValueAsInt64(string key, long value, TimeSpan time, out bool added)
+        {
+            this.SetValue(key, value.ToString(CultureInfo.InvariantCulture), time, out added);
+        }
+
+        /// <summary>
+        /// Set a value on server by key.
+        /// </summary>
+        /// <param name="key">Key.</param>
+        /// <param name="value">New value.</param>
+        /// <param name="time">Expire time.</param>
+        /// <param name="added">If data will be added, it will be true. If data already exists, it will be false.</param>
+        /// <returns></returns>
+        public void SetValueAsUInt64(string key, ulong value, TimeSpan time, out bool added)
+        {
+            this.SetValue(key, value.ToString(CultureInfo.InvariantCulture), time, out added);
+        }
+
+        /// <summary>
+        /// Set a value on server by key.
+        /// </summary>
+        /// <param name="key">Key.</param>
+        /// <param name="value">New value.</param>
+        /// <param name="time">Expire time.</param>
+        /// <param name="added">If data will be added, it will be true. If data already exists, it will be false.</param>
+        /// <returns></returns>
+        public void SetValueAsSingle(string key, float value, TimeSpan time, out bool added)
+        {
+            this.SetValue(key, value.ToString(CultureInfo.InvariantCulture), time, out added);
+        }
+
+        /// <summary>
+        /// Set a value on server by key.
+        /// </summary>
+        /// <param name="key">Key.</param>
+        /// <param name="value">New value.</param>
+        /// <param name="time">Expire time.</param>
+        /// <param name="added">If data will be added, it will be true. If data already exists, it will be false.</param>
+        /// <returns></returns>
+        public void SetValueAsDouble(string key, double value, TimeSpan time, out bool added)
+        {
+            this.SetValue(key, value.ToString(CultureInfo.InvariantCulture), time, out added);
+        }
+
+        /// <summary>
+        /// Set a value on server by key.
+        /// </summary>
+        /// <param name="key">Key.</param>
+        /// <param name="value">New value.</param>
+        /// <param name="time">Expire time.</param>
+        /// <param name="added">If data will be added, it will be true. If data already exists, it will be false.</param>
+        /// <returns></returns>
+        public void SetValueAsDecimal(string key, decimal value, TimeSpan time, out bool added)
+        {
+            this.SetValue(key, value.ToString(CultureInfo.InvariantCulture), time, out added);
+        }
+
+        /// <summary>
+        /// Set a value on server by key.
+        /// </summary>
+        /// <param name="key">Key.</param>
+        /// <param name="value">New value.</param>
+        /// <param name="time">Expire time.</param>
+        /// <param name="added">If data will be added, it will be true. If data already exists, it will be false.</param>
+        /// <returns></returns>
+        public void SetValueAsDateTime(string key, DateTime value, TimeSpan time, out bool added)
+        {
+            this.SetValueAsInt64(key, value.Ticks, time, out added);
+        }
+
+        /// <summary>
+        /// Set a value on server by key.
+        /// </summary>
+        /// <param name="key">Key.</param>
+        /// <param name="value">New value.</param>
+        /// <param name="time">Expire time.</param>
+        /// <param name="added">If data will be added, it will be true. If data already exists, it will be false.</param>
+        /// <returns></returns>
+        public void SetValueAsTimeSpan(string key, TimeSpan value, TimeSpan time, out bool added)
+        {
+            this.SetValueAsInt64(key, value.Ticks, time, out added);
+        }
+        #endregion
 
         /// <summary>
         /// Increment a value on server by key.
@@ -416,6 +812,7 @@ namespace dmuka3.CS.Simple.RamDb
                 Thread.Sleep(1);
             }
         }
+
         /// <summary>
         /// Unlock a process to run on a single thread.
         /// </summary>
