@@ -114,7 +114,7 @@ namespace dmuka3.CS.Simple.RamDb
         public string GetValue(string key)
         {
             if (key.Contains('<') || key.Contains('>'))
-                throw new Exception("Key can't containt '<' or '>'!");
+                throw new Exception("Key can't contain '<' or '>'!");
 
             lock (lockObj)
             {
@@ -389,7 +389,7 @@ namespace dmuka3.CS.Simple.RamDb
         public void DeleteValue(string key)
         {
             if (key.Contains('<') || key.Contains('>'))
-                throw new Exception("Key can't containt '<' or '>'!");
+                throw new Exception("Key can't contain '<' or '>'!");
 
             lock (lockObj)
             {
@@ -426,7 +426,7 @@ namespace dmuka3.CS.Simple.RamDb
         public void SetValue(string key, string value, TimeSpan time, out bool added)
         {
             if (key.Contains('<') || key.Contains('>'))
-                throw new Exception("Key can't containt '<' or '>'!");
+                throw new Exception("Key can't contain '<' or '>'!");
 
             lock (lockObj)
             {
@@ -659,7 +659,7 @@ namespace dmuka3.CS.Simple.RamDb
         public decimal IncrementValue(string key, decimal value)
         {
             if (key.Contains('<') || key.Contains('>'))
-                throw new Exception("Key can't containt '<' or '>'!");
+                throw new Exception("Key can't contain '<' or '>'!");
 
             lock (lockObj)
             {
@@ -717,7 +717,7 @@ namespace dmuka3.CS.Simple.RamDb
         public decimal DecrementValue(string key, decimal value)
         {
             if (key.Contains('<') || key.Contains('>'))
-                throw new Exception("Key can't containt '<' or '>'!");
+                throw new Exception("Key can't contain '<' or '>'!");
 
             lock (lockObj)
             {
