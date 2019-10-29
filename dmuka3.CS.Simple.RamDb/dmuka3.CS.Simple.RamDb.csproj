@@ -8,12 +8,12 @@
     <PackageProjectUrl>https://github.com/muhammet-kandemir-95/dmuka3.CS.Simple.RamDb</PackageProjectUrl>
     <RepositoryUrl>https://github.com/muhammet-kandemir-95/dmuka3.CS.Simple.RamDb</RepositoryUrl>
     <PackageTags>c#, core, simple, ramdb</PackageTags>
-    <Version>1.0.3</Version>
+    <Version>1.0.4</Version>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="dmuka3.CS.Simple.Semaphore" Version="1.0.1" />
-    <PackageReference Include="dmuka3.CS.Simple.TCP" Version="1.0.3" />
+    <PackageReference Include="dmuka3.CS.Simple.TCP" Version="1.0.5" />
   </ItemGroup>
 
 </Project>

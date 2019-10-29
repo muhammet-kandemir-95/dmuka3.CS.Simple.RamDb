@@ -67,7 +67,7 @@ namespace dmuka3.CS.Simple.RamDb
         public void Start(string userName, string password, int dwKeySize)
         {
             if (userName.Contains('<') || userName.Contains('>') || password.Contains('<') || password.Contains('>'))
-                throw new Exception("UserName and Password can't containt '<' or '>'!");
+                throw new Exception("UserName and Password can't contain '<' or '>'!");
 
             this._client.Connect(this.HostName, this.Port);
             this._conn = new TCPClientConnection(this._client);
@@ -113,6 +113,9 @@ namespace dmuka3.CS.Simple.RamDb
         /// <returns></returns>
         public string GetValue(string key)
         {
+            if (key.Contains('<') || key.Contains('>'))
+                throw new Exception("Key can't containt '<' or '>'!");
+
             lock (lockObj)
             {
                 // - IF PROCESS TYPE IS "GET VALUE BY KEY"
@@ -385,6 +388,9 @@ namespace dmuka3.CS.Simple.RamDb
         /// <returns></returns>
         public void DeleteValue(string key)
         {
+            if (key.Contains('<') || key.Contains('>'))
+                throw new Exception("Key can't containt '<' or '>'!");
+
             lock (lockObj)
             {
                 // - IF PROCESS TYPE IS "DELETE VALUE BY KEY"
@@ -419,6 +425,9 @@ namespace dmuka3.CS.Simple.RamDb
         /// <returns></returns>
         public void SetValue(string key, string value, TimeSpan time, out bool added)
         {
+            if (key.Contains('<') || key.Contains('>'))
+                throw new Exception("Key can't containt '<' or '>'!");
+
             lock (lockObj)
             {
                 // - IF PROCESS TYPE IS "SET VALUE BY KEY"
@@ -649,6 +658,9 @@ namespace dmuka3.CS.Simple.RamDb
         /// <returns></returns>
         public decimal IncrementValue(string key, decimal value)
         {
+            if (key.Contains('<') || key.Contains('>'))
+                throw new Exception("Key can't containt '<' or '>'!");
+
             lock (lockObj)
             {
                 // - IF PROCESS TYPE IS "INCREMENT VALUE BY KEY"
@@ -704,6 +716,9 @@ namespace dmuka3.CS.Simple.RamDb
         /// <returns></returns>
         public decimal DecrementValue(string key, decimal value)
         {
+            if (key.Contains('<') || key.Contains('>'))
+                throw new Exception("Key can't containt '<' or '>'!");
+
             lock (lockObj)
             {
                 // - IF PROCESS TYPE IS "DECREMENT VALUE BY KEY"
